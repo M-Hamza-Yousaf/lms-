@@ -1,0 +1,111 @@
+.navbar {
+  background: var(--white);
+  padding: 16px 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary);
+}
+
+/* Hamburger Button - Hidden on desktop */
+.navbar-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 26px;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+  align-items: center;
+}
+
+.nav-links a {
+  color: var(--text);
+  font-weight: 500;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: var(--primary);
+}
+
+/* ========================================
+   MOBILE RESPONSIVE (max-width: 768px)
+   ======================================== */
+@media (max-width: 768px) {
+  /* Show hamburger button on mobile */
+  .navbar-toggle {
+    display: block;
+  }
+
+  /* Hide nav links by default on mobile */
+  .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    flex-direction: column;
+    padding: 20px;
+    gap: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    /* Hidden state - slide up */
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    padding-bottom: 0;
+    transition: all 0.3s ease;
+  }
+
+  /* When menu is open - slide down */
+  .nav-links.nav-links-open {
+    max-height: 300px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .nav-links li {
+    width: 100%;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 10px 16px;
+    border-radius: 6px;
+  }
+
+  .nav-links a:hover {
+    background: var(--bg);
+  }
+
+  /* Login button full width on mobile */
+  .nav-links .btn-primary {
+    text-align: center;
+    background: var(--primary);
+    color: white;
+  }
+
+  .nav-links .btn-primary:hover {
+    background: var(--primary-dark);
+  }
+}
