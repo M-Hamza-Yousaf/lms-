@@ -1,156 +1,126 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Login.css';
 
 function Login() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    role: 'student'
-  });
+  const [formData, setFormData] = useState({ email: '', password: '', role: 'student' });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
-  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Clear error when user types
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: '' });
-    }
+    if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
   };
 
-  // Form validation
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
+    if (!formData.email) newErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Please enter a valid email';
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle form submit
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log('Login data:', formData);
-
-      // Save user data to localStorage (will come from backend later)
       localStorage.setItem('user', JSON.stringify(formData));
-
-      // Redirect based on role
-      if (formData.role === 'student') {
-        navigate('/student/dashboard');
-      } else if (formData.role === 'teacher') {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/admin/dashboard');
-      }
+      if (formData.role === 'student') navigate('/student/dashboard');
+      else if (formData.role === 'teacher') navigate('/teacher/dashboard');
+      else navigate('/admin/dashboard');
     }
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <div className="auth-card">
-          <div className="auth-header">
-            <h2>Welcome Back! 👋</h2>
-            <p>Sign in to continue to your LMS</p>
+    <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-5 bg-gradient-to-br from-blue-50 to-blue-100">
+      <div className="w-full max-w-md">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-textDark mb-2">Welcome Back! 👋</h2>
+            <p className="text-textLight">Sign in to continue to your LMS</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="auth-form">
-            {/* Role Selection Tabs */}
-            <div className="role-tabs">
-              <button
-                type="button"
-                className={`role-tab ${formData.role === 'student' ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'student' })}
-              >
-                🎓 Student
-              </button>
-              <button
-                type="button"
-                className={`role-tab ${formData.role === 'teacher' ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'teacher' })}
-              >
-                👨‍🏫 Teacher
-              </button>
-              <button
-                type="button"
-                className={`role-tab ${formData.role === 'admin' ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'admin' })}
-              >
-                ⚙️ Admin
-              </button>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="flex gap-2 bg-bg p-1.5 rounded-xl">
+              {['student', 'teacher', 'admin'].map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  className={`flex-1 py-2.5 text-xs font-medium rounded-lg transition ${
+                    formData.role === role 
+                      ? 'bg-white text-primary shadow-sm' 
+                      : 'text-textLight hover:text-textDark'
+                  }`}
+                  onClick={() => setFormData({ ...formData, role })}
+                >
+                  {role === 'student' && '🎓 Student'}
+                  {role === 'teacher' && '👨‍🏫 Teacher'}
+                  {role === 'admin' && '⚙️ Admin'}
+                </button>
+              ))}
             </div>
 
-            {/* Email Field */}
-            <div className="form-group">
-              <label>Email Address</label>
+            <div>
+              <label className="block text-sm font-medium text-textDark mb-1.5">Email Address</label>
               <input
                 type="email"
                 name="email"
                 placeholder="your@email.com"
                 value={formData.email}
                 onChange={handleChange}
-                className={errors.email ? 'error' : ''}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition ${
+                  errors.email ? 'border-danger' : 'border-border focus:border-primary'
+                }`}
               />
-              {errors.email && <span className="error-text">{errors.email}</span>}
+              {errors.email && <span className="text-danger text-xs mt-1 block">{errors.email}</span>}
             </div>
 
-            {/* Password Field */}
-            <div className="form-group">
-              <label>Password</label>
-              <div className="password-wrapper">
+            <div>
+              <label className="block text-sm font-medium text-textDark mb-1.5">Password</label>
+              <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={errors.password ? 'error' : ''}
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition ${
+                    errors.password ? 'border-danger' : 'border-border focus:border-primary'
+                  }`}
                 />
                 <span
-                  className="toggle-password"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-lg"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? '🙈' : '👁️'}
                 </span>
               </div>
-              {errors.password && <span className="error-text">{errors.password}</span>}
+              {errors.password && <span className="text-danger text-xs mt-1 block">{errors.password}</span>}
             </div>
 
-            {/* Remember Me + Forgot Password */}
-            <div className="form-options">
-              <label className="checkbox-label">
-                <input type="checkbox" />
+            <div className="flex justify-between items-center text-sm">
+              <label className="flex items-center gap-2 cursor-pointer text-textLight">
+                <input type="checkbox" className="cursor-pointer" />
                 <span>Remember me</span>
               </label>
-              <Link to="/forgot-password" className="forgot-link">
+              <Link to="/forgot-password" className="text-primary font-medium hover:underline">
                 Forgot password?
               </Link>
             </div>
 
-            {/* Submit Button */}
-            <button type="submit" className="auth-btn">
+            <button
+              type="submit"
+              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark hover:-translate-y-0.5 transition"
+            >
               Sign In
             </button>
 
-            {/* Signup Link */}
-            <p className="auth-footer">
-              Don't have an account? <Link to="/signup">Sign up</Link>
+            <p className="text-center text-sm text-textLight">
+              Don't have an account?{' '}
+              <Link to="/signup" className="text-primary font-semibold hover:underline">
+                Sign up
+              </Link>
             </p>
           </form>
         </div>

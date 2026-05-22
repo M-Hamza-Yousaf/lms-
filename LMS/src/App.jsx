@@ -5,8 +5,6 @@ import AppRoutes from './routes/AppRoutes.jsx';
 
 function App() {
   const location = useLocation();
-  
-  // Hide Navbar & Footer on dashboard pages (they have their own Sidebar)
   const hideLayout = location.pathname.startsWith('/student') ||
                      location.pathname.startsWith('/teacher') ||
                      location.pathname.startsWith('/admin');

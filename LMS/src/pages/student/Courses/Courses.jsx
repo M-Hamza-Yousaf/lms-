@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from '../../../components/Sidebar/Sidebar.jsx';
-import './Courses.css';
 
 function StudentCourses() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
 
-  // Dummy courses data (will come from backend later)
   const allCourses = [
     { id: 1, title: 'Web Development with React', instructor: 'Sir Ahmed Khan', image: '🌐', progress: 75, totalLectures: 24, completedLectures: 18, category: 'enrolled', rating: 4.8 },
     { id: 2, title: 'Database Management Systems', instructor: 'Sara Ali', image: '💾', progress: 50, totalLectures: 20, completedLectures: 10, category: 'enrolled', rating: 4.6 },
@@ -20,7 +18,6 @@ function StudentCourses() {
     { id: 9, title: 'Artificial Intelligence', instructor: 'Sir Usman Khan', image: '🤖', progress: 0, totalLectures: 28, completedLectures: 0, category: 'available', rating: 4.9 },
   ];
 
-  // Filter courses based on search and category
   const filteredCourses = allCourses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
@@ -28,7 +25,6 @@ function StudentCourses() {
     return matchesSearch && matchesFilter;
   });
 
-  // Count courses by category
   const counts = {
     all: allCourses.length,
     enrolled: allCourses.filter(c => c.category === 'enrolled').length,
@@ -36,117 +32,123 @@ function StudentCourses() {
     available: allCourses.filter(c => c.category === 'available').length,
   };
 
+  const getBadge = (category) => {
+    if (category === 'completed') return { text: '✓ Completed', class: 'bg-success' };
+    if (category === 'enrolled') return { text: 'In Progress', class: 'bg-secondary' };
+    return { text: 'New', class: 'bg-primary' };
+  };
+
   return (
-    <div className="dashboard-layout">
+    <div className="flex min-h-screen bg-bg">
       <Sidebar role="student" />
 
-      <main className="dashboard-main">
+      <main className="flex-1 md:ml-64 p-5 md:p-8 pt-20 md:pt-8">
         {/* Page Header */}
-        <div className="page-header">
-          <div>
-            <h1>My Courses 📚</h1>
-            <p>Browse and manage your learning</p>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-xl md:text-3xl font-bold text-textDark mb-1">My Courses 📚</h1>
+          <p className="text-sm md:text-base text-textLight">Browse and manage your learning</p>
         </div>
 
         {/* Search Bar */}
-        <div className="search-bar">
-          <span className="search-icon">🔍</span>
+        <div className="relative mb-5">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🔍</span>
           <input
             type="text"
             placeholder="Search courses or instructors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3.5 bg-white border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition"
           />
         </div>
 
         {/* Filter Tabs */}
-        <div className="filter-tabs">
-          <button
-            className={`filter-tab ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            All Courses <span className="count">{counts.all}</span>
-          </button>
-          <button
-            className={`filter-tab ${filter === 'enrolled' ? 'active' : ''}`}
-            onClick={() => setFilter('enrolled')}
-          >
-            In Progress <span className="count">{counts.enrolled}</span>
-          </button>
-          <button
-            className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
-            onClick={() => setFilter('completed')}
-          >
-            Completed <span className="count">{counts.completed}</span>
-          </button>
-          <button
-            className={`filter-tab ${filter === 'available' ? 'active' : ''}`}
-            onClick={() => setFilter('available')}
-          >
-            Available <span className="count">{counts.available}</span>
-          </button>
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
+          {[
+            { key: 'all', label: 'All Courses', count: counts.all },
+            { key: 'enrolled', label: 'In Progress', count: counts.enrolled },
+            { key: 'completed', label: 'Completed', count: counts.completed },
+            { key: 'available', label: 'Available', count: counts.available },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setFilter(tab.key)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap flex-shrink-0 border transition ${
+                filter === tab.key
+                  ? 'bg-primary text-white border-primary'
+                  : 'bg-white text-textLight border-border hover:border-primary hover:text-primary'
+              }`}
+            >
+              {tab.label}
+              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                filter === tab.key ? 'bg-white bg-opacity-25' : 'bg-black bg-opacity-10'
+              }`}>
+                {tab.count}
+              </span>
+            </button>
+          ))}
         </div>
 
         {/* Courses Grid */}
         {filteredCourses.length > 0 ? (
-          <div className="courses-grid">
-            {filteredCourses.map((course) => (
-              <div key={course.id} className="course-card">
-                <div className="course-card-header">
-                  <span className="course-emoji">{course.image}</span>
-                  {course.category === 'completed' && (
-                    <span className="badge completed-badge">✓ Completed</span>
-                  )}
-                  {course.category === 'enrolled' && (
-                    <span className="badge progress-badge">In Progress</span>
-                  )}
-                  {course.category === 'available' && (
-                    <span className="badge new-badge">New</span>
-                  )}
-                </div>
-
-                <div className="course-card-body">
-                  <h3>{course.title}</h3>
-                  <p className="instructor">👤 {course.instructor}</p>
-
-                  <div className="course-meta">
-                    <span>📹 {course.totalLectures} lectures</span>
-                    <span>⭐ {course.rating}</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {filteredCourses.map((course) => {
+              const badge = getBadge(course.category);
+              return (
+                <div key={course.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex flex-col">
+                  {/* Card Header */}
+                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 flex justify-between items-start">
+                    <span className="text-5xl">{course.image}</span>
+                    <span className={`${badge.class} text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide`}>
+                      {badge.text}
+                    </span>
                   </div>
 
-                  {course.category !== 'available' && (
-                    <>
-                      <div className="progress-bar">
-                        <div
-                          className="progress-fill"
-                          style={{ width: `${course.progress}%` }}
-                        ></div>
-                      </div>
-                      <p className="progress-info">
-                        {course.completedLectures} / {course.totalLectures} lectures · {course.progress}%
-                      </p>
-                    </>
-                  )}
-                </div>
+                  {/* Card Body */}
+                  <div className="p-5 flex-1">
+                    <h3 className="text-base font-semibold text-textDark mb-2 leading-tight">{course.title}</h3>
+                    <p className="text-sm text-textLight mb-3">👤 {course.instructor}</p>
 
-                <div className="course-card-footer">
-                  {course.category === 'available' ? (
-                    <button className="enroll-btn">Enroll Now</button>
-                  ) : (
-                    <Link to="/student/lecture-view" className="continue-btn">
-                      {course.category === 'completed' ? 'Review' : 'Continue Learning'}
-                    </Link>
-                  )}
+                    <div className="flex justify-between text-xs text-textLight mb-3 pb-3 border-b border-border">
+                      <span>📹 {course.totalLectures} lectures</span>
+                      <span>⭐ {course.rating}</span>
+                    </div>
+
+                    {course.category !== 'available' && (
+                      <>
+                        <div className="bg-border h-1.5 rounded overflow-hidden mb-2">
+                          <div className="bg-primary h-full rounded transition-all duration-500" style={{ width: `${course.progress}%` }}></div>
+                        </div>
+                        <p className="text-xs text-textLight font-medium">
+                          {course.completedLectures} / {course.totalLectures} · {course.progress}%
+                        </p>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="p-5 pt-0">
+                    {course.category === 'available' ? (
+                      <button className="w-full bg-success text-white py-3 rounded-lg font-semibold text-sm hover:bg-green-700 transition">
+                        Enroll Now
+                      </button>
+                    ) : (
+                      <Link
+                        to="/student/lecture-view"
+                        className="block w-full bg-primary text-white py-3 rounded-lg font-semibold text-sm hover:bg-primary-dark transition text-center"
+                      >
+                        {course.category === 'completed' ? 'Review' : 'Continue Learning'}
+                      </Link>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
-          <div className="empty-state">
-            <span className="empty-icon">📭</span>
-            <h3>No courses found</h3>
-            <p>Try adjusting your search or filters</p>
+          <div className="text-center py-16 bg-white rounded-xl">
+            <div className="text-6xl mb-4">📭</div>
+            <h3 className="text-textDark font-semibold mb-2">No courses found</h3>
+            <p className="text-textLight">Try adjusting your search or filters</p>
           </div>
         )}
       </main>
