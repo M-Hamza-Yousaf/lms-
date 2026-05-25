@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Signup() {
   const navigate = useNavigate();
@@ -9,11 +10,14 @@ function Signup() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
     if (errors[name]) setErrors({ ...errors, [name]: '' });
+    setServerError('');
   };
 
   const validateForm = () => {
@@ -31,12 +35,39 @@ function Signup() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      localStorage.setItem('user', JSON.stringify(formData));
+    
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setServerError('');
+
+    try {
+      // Call backend signup API
+      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role
+      });
+
+      // Save token + user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+
       alert('Account created successfully! Please login.');
       navigate('/login');
+
+    } catch (error) {
+      // Show backend error
+      if (error.response && error.response.data) {
+        setServerError(error.response.data.message || 'Signup failed');
+      } else {
+        setServerError('Cannot connect to server. Please make sure backend is running.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,6 +90,12 @@ function Signup() {
             <h2 className="text-2xl font-bold text-textDark mb-2">Create Account 🚀</h2>
             <p className="text-textLight">Join our LMS and start learning today</p>
           </div>
+
+          {serverError && (
+            <div className="bg-red-50 border border-danger text-danger px-4 py-3 rounded-lg mb-4 text-sm">
+              ⚠️ {serverError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex gap-2 bg-bg p-1.5 rounded-xl">
@@ -192,9 +229,10 @@ function Signup() {
 
             <button
               type="submit"
-              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark hover:-translate-y-0.5 transition"
+              disabled={loading}
+              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark hover:-translate-y-0.5 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Create Account
+              {loading ? '⏳ Creating Account...' : 'Create Account'}
             </button>
 
             <p className="text-center text-sm text-textLight">

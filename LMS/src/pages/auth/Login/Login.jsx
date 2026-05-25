@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: '', password: '', role: 'student' });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (errors[e.target.name]) setErrors({ ...errors, [e.target.name]: '' });
+    setServerError('');
   };
 
   const validateForm = () => {
@@ -22,13 +26,39 @@ function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      localStorage.setItem('user', JSON.stringify(formData));
-      if (formData.role === 'student') navigate('/student/dashboard');
-      else if (formData.role === 'teacher') navigate('/teacher/dashboard');
+    
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setServerError('');
+
+    try {
+      // Call backend login API
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        email: formData.email,
+        password: formData.password
+      });
+
+      // Save token + user data
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+      // Redirect based on role
+      const userRole = response.data.user.role;
+      if (userRole === 'student') navigate('/student/dashboard');
+      else if (userRole === 'teacher') navigate('/teacher/dashboard');
       else navigate('/admin/dashboard');
+
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setServerError(error.response.data.message || 'Login failed');
+      } else {
+        setServerError('Cannot connect to server. Please make sure backend is running.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,6 +70,12 @@ function Login() {
             <h2 className="text-2xl font-bold text-textDark mb-2">Welcome Back! 👋</h2>
             <p className="text-textLight">Sign in to continue to your LMS</p>
           </div>
+
+          {serverError && (
+            <div className="bg-red-50 border border-danger text-danger px-4 py-3 rounded-lg mb-4 text-sm">
+              ⚠️ {serverError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex gap-2 bg-bg p-1.5 rounded-xl">
@@ -111,9 +147,10 @@ function Login() {
 
             <button
               type="submit"
-              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark hover:-translate-y-0.5 transition"
+              disabled={loading}
+              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark hover:-translate-y-0.5 transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Sign In
+              {loading ? '⏳ Signing In...' : 'Sign In'}
             </button>
 
             <p className="text-center text-sm text-textLight">
