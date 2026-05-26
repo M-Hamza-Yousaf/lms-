@@ -37,22 +37,19 @@ function Signup() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
     setLoading(true);
     setServerError('');
 
     try {
-      // Call backend signup API
-    const response = await axios.post('https://lms-production-b53d.up.railway.app/api/auth/signup', {
+      const response = await axios.post('https://lms-production-b53d.up.railway.app/api/auth/signup', {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
         role: formData.role
       });
 
-      // Save token + user data
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
@@ -60,11 +57,10 @@ function Signup() {
       navigate('/login');
 
     } catch (error) {
-      // Show backend error
       if (error.response && error.response.data) {
         setServerError(error.response.data.message || 'Signup failed');
       } else {
-        setServerError('Cannot connect to server. Please make sure backend is running.');
+        setServerError('Cannot connect to server. Please try again later.');
       }
     } finally {
       setLoading(false);

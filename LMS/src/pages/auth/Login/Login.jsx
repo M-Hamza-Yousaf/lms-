@@ -28,24 +28,20 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
     setLoading(true);
     setServerError('');
 
     try {
-      // Call backend login API
-     const response = await axios.post('https://lms-production-b53d.up.railway.app/api/auth/login', {
+      const response = await axios.post('https://lms-production-b53d.up.railway.app/api/auth/login', {
         email: formData.email,
         password: formData.password
       });
 
-      // Save token + user data
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
 
-      // Redirect based on role
       const userRole = response.data.user.role;
       if (userRole === 'student') navigate('/student/dashboard');
       else if (userRole === 'teacher') navigate('/teacher/dashboard');
@@ -55,7 +51,7 @@ function Login() {
       if (error.response && error.response.data) {
         setServerError(error.response.data.message || 'Login failed');
       } else {
-        setServerError('Cannot connect to server. Please make sure backend is running.');
+        setServerError('Cannot connect to server. Please try again later.');
       }
     } finally {
       setLoading(false);
