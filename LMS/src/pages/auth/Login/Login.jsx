@@ -36,7 +36,7 @@ function Login() {
 
     try {
       // Call backend login API
-      const response = await axios.post('https://lms-production-xxxx.up.railway.app/api/auth/login', {
+      const response = await axios.post('https://lms-production-b53d.up.railway.app/api/auth/login', {
         email: formData.email,
         password: formData.password
       });
