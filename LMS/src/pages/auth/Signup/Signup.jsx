@@ -46,12 +46,14 @@ function Signup() {
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Full name is required';
+    } else if (formData.fullName.trim().length < 3) {
+      newErrors.fullName = 'Name must be at least 3 characters';
     }
 
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter valid email';
+      newErrors.email = 'Please enter a valid email';
     }
 
     if (!formData.password) {
@@ -61,13 +63,13 @@ function Signup() {
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Confirm your password';
+      newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
     if (!formData.agreeTerms) {
-      newErrors.agreeTerms = 'Please agree to terms';
+      newErrors.agreeTerms = 'You must agree to the terms';
     }
 
     setErrors(newErrors);
@@ -121,6 +123,7 @@ function Signup() {
   };
 
   return (
+
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-5 bg-gradient-to-br from-blue-50 to-blue-100">
 
       <div className="w-full max-w-md">
@@ -147,7 +150,31 @@ function Signup() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
 
+            <div className="flex gap-2 bg-bg p-1.5 rounded-xl">
+
+              {['student', 'teacher'].map((role) => (
+
+                <button
+                  key={role}
+                  type="button"
+                  className={`flex-1 py-2.5 text-xs font-medium rounded-lg transition ${
+                    formData.role === role
+                      ? 'bg-white text-primary shadow-sm'
+                      : 'text-textLight hover:text-textDark'
+                  }`}
+                  onClick={() => setFormData({ ...formData, role })}
+                >
+                  {role === 'student'
+                    ? '🎓 Student'
+                    : '👨‍🏫 Teacher'}
+                </button>
+
+              ))}
+
+            </div>
+
             <div>
+
               <label className="block text-sm font-medium text-textDark mb-1.5">
                 Full Name
               </label>
@@ -158,7 +185,11 @@ function Signup() {
                 placeholder="John Doe"
                 value={formData.fullName}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border rounded-lg"
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${
+                  errors.fullName
+                    ? 'border-danger'
+                    : 'border-border focus:border-primary'
+                }`}
               />
 
               {errors.fullName && (
@@ -166,11 +197,13 @@ function Signup() {
                   {errors.fullName}
                 </span>
               )}
+
             </div>
 
             <div>
+
               <label className="block text-sm font-medium text-textDark mb-1.5">
-                Email
+                Email Address
               </label>
 
               <input
@@ -179,7 +212,11 @@ function Signup() {
                 placeholder="your@email.com"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border rounded-lg"
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${
+                  errors.email
+                    ? 'border-danger'
+                    : 'border-border focus:border-primary'
+                }`}
               />
 
               {errors.email && (
@@ -187,9 +224,11 @@ function Signup() {
                   {errors.email}
                 </span>
               )}
+
             </div>
 
             <div>
+
               <label className="block text-sm font-medium text-textDark mb-1.5">
                 Password
               </label>
@@ -199,14 +238,18 @@ function Signup() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
-                  placeholder="Create password"
+                  placeholder="Create a password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border rounded-lg pr-12"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${
+                    errors.password
+                      ? 'border-danger'
+                      : 'border-border focus:border-primary'
+                  }`}
                 />
 
                 <span
-                  className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-lg"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? '🙈' : '👁️'}
@@ -219,9 +262,11 @@ function Signup() {
                   {errors.password}
                 </span>
               )}
+
             </div>
 
             <div>
+
               <label className="block text-sm font-medium text-textDark mb-1.5">
                 Confirm Password
               </label>
@@ -231,14 +276,18 @@ function Signup() {
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   name="confirmPassword"
-                  placeholder="Confirm password"
+                  placeholder="Re-enter your password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border rounded-lg pr-12"
+                  className={`w-full px-4 py-3 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition ${
+                    errors.confirmPassword
+                      ? 'border-danger'
+                      : 'border-border focus:border-primary'
+                  }`}
                 />
 
                 <span
-                  className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-lg"
                   onClick={() =>
                     setShowConfirmPassword(!showConfirmPassword)
                   }
@@ -253,19 +302,41 @@ function Signup() {
                   {errors.confirmPassword}
                 </span>
               )}
+
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm">
+
+              <label className="flex items-start gap-3 cursor-pointer text-sm text-textLight leading-relaxed">
 
                 <input
                   type="checkbox"
                   name="agreeTerms"
                   checked={formData.agreeTerms}
                   onChange={handleChange}
+                  className="mt-1 w-4 h-4 cursor-pointer accent-primary flex-shrink-0"
                 />
 
-                I agree to Terms & Conditions
+                <span>
+                  I agree to the{' '}
+
+                  <Link
+                    to="/terms"
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Terms & Conditions
+                  </Link>
+
+                  {' '}and{' '}
+
+                  <Link
+                    to="/privacy"
+                    className="text-primary font-medium hover:underline"
+                  >
+                    Privacy Policy
+                  </Link>
+
+                </span>
 
               </label>
 
@@ -274,14 +345,17 @@ function Signup() {
                   {errors.agreeTerms}
                 </span>
               )}
+
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-white py-3 rounded-lg"
+              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark transition disabled:opacity-60"
             >
-              {loading ? '⏳ Creating...' : 'Create Account'}
+              {loading
+                ? '⏳ Creating Account...'
+                : 'Create Account'}
             </button>
 
             <p className="text-center text-sm text-textLight">
@@ -290,9 +364,9 @@ function Signup() {
 
               <Link
                 to="/login"
-                className="text-primary font-semibold"
+                className="text-primary font-semibold hover:underline"
               >
-                Login
+                Sign in
               </Link>
 
             </p>

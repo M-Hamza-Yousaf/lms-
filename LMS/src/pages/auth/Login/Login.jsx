@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function Login() {
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ function Login() {
   const [serverError, setServerError] = useState('');
 
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -33,6 +35,7 @@ function Login() {
   };
 
   const validateForm = () => {
+
     const newErrors = {};
 
     if (!formData.email) {
@@ -53,6 +56,7 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -61,6 +65,7 @@ function Login() {
     setServerError('');
 
     try {
+
       const response = await axios.post(
         'https://lms-production-b53d.up.railway.app/api/auth/login',
         {
@@ -70,7 +75,11 @@ function Login() {
       );
 
       localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+
+      localStorage.setItem(
+        'user',
+        JSON.stringify(response.data.user)
+      );
 
       const userRole = response.data.user.role;
 
@@ -96,12 +105,15 @@ function Login() {
   };
 
   return (
+
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center p-5 bg-gradient-to-br from-blue-50 to-blue-100">
+
       <div className="w-full max-w-md">
 
         <div className="bg-white p-8 rounded-2xl shadow-2xl">
 
           <div className="text-center mb-8">
+
             <h2 className="text-2xl font-bold text-textDark mb-2">
               Welcome Back! 👋
             </h2>
@@ -109,6 +121,7 @@ function Login() {
             <p className="text-textLight">
               Sign in to continue to your LMS
             </p>
+
           </div>
 
           {serverError && (
@@ -143,6 +156,7 @@ function Login() {
             </div>
 
             <div>
+
               <label className="block text-sm font-medium text-textDark mb-1.5">
                 Email Address
               </label>
@@ -165,9 +179,11 @@ function Login() {
                   {errors.email}
                 </span>
               )}
+
             </div>
 
             <div>
+
               <label className="block text-sm font-medium text-textDark mb-1.5">
                 Password
               </label>
@@ -201,6 +217,7 @@ function Login() {
                   {errors.password}
                 </span>
               )}
+
             </div>
 
             <div className="flex justify-between items-center text-sm">
@@ -228,6 +245,7 @@ function Login() {
             </button>
 
             <p className="text-center text-sm text-textLight">
+
               Don't have an account?{' '}
 
               <Link
@@ -244,6 +262,7 @@ function Login() {
         </div>
 
       </div>
+
     </div>
   );
 }
