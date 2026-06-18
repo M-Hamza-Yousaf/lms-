@@ -1,159 +1,136 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Sidebar from '../../../components/Sidebar/Sidebar.jsx';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function StudentCourses() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filter, setFilter] = useState('all');
+function Courses() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
 
-  const allCourses = [
-    { id: 1, title: 'Web Development with React', instructor: 'Sir Ahmed Khan', image: '🌐', progress: 75, totalLectures: 24, completedLectures: 18, category: 'enrolled', rating: 4.8 },
-    { id: 2, title: 'Database Management Systems', instructor: 'Sara Ali', image: '💾', progress: 50, totalLectures: 20, completedLectures: 10, category: 'enrolled', rating: 4.6 },
-    { id: 3, title: 'Operating Systems', instructor: 'Sir Bilal Hussain', image: '💻', progress: 30, totalLectures: 18, completedLectures: 5, category: 'enrolled', rating: 4.7 },
-    { id: 4, title: 'Data Structures & Algorithms', instructor: 'Sir Imran Malik', image: '🧮', progress: 100, totalLectures: 22, completedLectures: 22, category: 'completed', rating: 4.9 },
-    { id: 5, title: 'Computer Networks', instructor: 'Ayesha Khan', image: '🌐', progress: 100, totalLectures: 16, completedLectures: 16, category: 'completed', rating: 4.5 },
-    { id: 6, title: 'Software Engineering', instructor: 'Sir Tariq Mehmood', image: '⚙️', progress: 100, totalLectures: 20, completedLectures: 20, category: 'completed', rating: 4.8 },
-    { id: 7, title: 'Mobile App Development', instructor: 'Sir Hassan Ali', image: '📱', progress: 0, totalLectures: 25, completedLectures: 0, category: 'available', rating: 4.7 },
-    { id: 8, title: 'Cloud Computing', instructor: 'Fatima Sheikh', image: '☁️', progress: 0, totalLectures: 18, completedLectures: 0, category: 'available', rating: 4.6 },
-    { id: 9, title: 'Artificial Intelligence', instructor: 'Sir Usman Khan', image: '🤖', progress: 0, totalLectures: 28, completedLectures: 0, category: 'available', rating: 4.9 },
-  ];
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
-  const filteredCourses = allCourses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         course.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filter === 'all' || course.category === filter;
-    return matchesSearch && matchesFilter;
+  const fetchCourses = async () => {
+    try {
+      const response = await axios.get('https://lms-production-b53d.up.railway.app/api/courses');
+      setCourses(response.data.courses);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEnroll = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `https://lms-production-b53d.up.railway.app/api/courses/${id}/enroll`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Enrolled successfully! 🎉');
+      fetchCourses();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Enrollment failed');
+    }
+  };
+
+  const filteredCourses = courses.filter(c => {
+    const matchSearch = c.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCategory = categoryFilter === 'All' || c.category === categoryFilter;
+    return matchSearch && matchCategory;
   });
 
-  const counts = {
-    all: allCourses.length,
-    enrolled: allCourses.filter(c => c.category === 'enrolled').length,
-    completed: allCourses.filter(c => c.category === 'completed').length,
-    available: allCourses.filter(c => c.category === 'available').length,
-  };
-
-  const getBadge = (category) => {
-    if (category === 'completed') return { text: '✓ Completed', class: 'bg-success' };
-    if (category === 'enrolled') return { text: 'In Progress', class: 'bg-secondary' };
-    return { text: 'New', class: 'bg-primary' };
-  };
-
   return (
-    <div className="flex min-h-screen bg-bg">
-      <Sidebar role="student" />
-
-      <main className="flex-1 md:ml-64 p-5 md:p-8 pt-20 md:pt-8">
-        {/* Page Header */}
-        <div className="mb-6">
-          <h1 className="text-xl md:text-3xl font-bold text-textDark mb-1">My Courses 📚</h1>
-          <p className="text-sm md:text-base text-textLight">Browse and manage your learning</p>
+    <div className="min-h-screen bg-bg p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-textDark">Browse Courses 🎓</h1>
+          <p className="text-textLight mt-1">Discover amazing courses to learn from</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-5">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🔍</span>
+        <div className="bg-white p-5 rounded-2xl shadow-sm mb-6 flex flex-col md:flex-row gap-4">
           <input
             type="text"
-            placeholder="Search courses or instructors..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition"
+            placeholder="🔍 Search courses..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="flex-1 px-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary"
           />
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary"
+          >
+            <option value="All">All Categories</option>
+            <option value="Programming">Programming</option>
+            <option value="Design">Design</option>
+            <option value="Business">Business</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
-          {[
-            { key: 'all', label: 'All Courses', count: counts.all },
-            { key: 'enrolled', label: 'In Progress', count: counts.enrolled },
-            { key: 'completed', label: 'Completed', count: counts.completed },
-            { key: 'available', label: 'Available', count: counts.available },
-          ].map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setFilter(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap flex-shrink-0 border transition ${
-                filter === tab.key
-                  ? 'bg-primary text-white border-primary'
-                  : 'bg-white text-textLight border-border hover:border-primary hover:text-primary'
-              }`}
-            >
-              {tab.label}
-              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                filter === tab.key ? 'bg-white bg-opacity-25' : 'bg-black bg-opacity-10'
-              }`}>
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-textLight">Loading courses...</p>
+          </div>
+        ) : filteredCourses.length === 0 ? (
+          <div className="bg-white p-12 rounded-2xl shadow-lg text-center">
+            <div className="text-6xl mb-4">🔍</div>
+            <h2 className="text-xl font-bold text-textDark mb-2">No Courses Found</h2>
+            <p className="text-textLight">Try different search or category</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCourses.map(course => (
+              <div key={course._id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
+                <img 
+                  src={course.thumbnail} 
+                  alt={course.title}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-5">
+                  <span className="inline-block bg-blue-100 text-primary text-xs font-semibold px-3 py-1 rounded-full mb-2">
+                    {course.category}
+                  </span>
+                  <h3 className="text-lg font-bold text-textDark mb-2">{course.title}</h3>
+                  <p className="text-textLight text-sm mb-3 line-clamp-2">{course.description}</p>
+                  
+                  <div className="flex items-center gap-3 text-xs text-textLight mb-3">
+                    <span>👨‍🏫 {course.teacherName}</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 text-xs text-textLight mb-4">
+                    <span>⏱️ {course.duration}</span>
+                    <span>📊 {course.level}</span>
+                  </div>
 
-        {/* Courses Grid */}
-        {filteredCourses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredCourses.map((course) => {
-              const badge = getBadge(course.category);
-              return (
-                <div key={course.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-300 flex flex-col">
-                  {/* Card Header */}
-                  <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 flex justify-between items-start">
-                    <span className="text-5xl">{course.image}</span>
-                    <span className={`${badge.class} text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide`}>
-                      {badge.text}
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-2xl font-bold text-primary">
+                      {course.price === 0 ? 'Free' : `$${course.price}`}
+                    </span>
+                    <span className="text-xs text-textLight">
+                      👥 {course.enrolledStudents?.length || 0} enrolled
                     </span>
                   </div>
 
-                  {/* Card Body */}
-                  <div className="p-5 flex-1">
-                    <h3 className="text-base font-semibold text-textDark mb-2 leading-tight">{course.title}</h3>
-                    <p className="text-sm text-textLight mb-3">👤 {course.instructor}</p>
-
-                    <div className="flex justify-between text-xs text-textLight mb-3 pb-3 border-b border-border">
-                      <span>📹 {course.totalLectures} lectures</span>
-                      <span>⭐ {course.rating}</span>
-                    </div>
-
-                    {course.category !== 'available' && (
-                      <>
-                        <div className="bg-border h-1.5 rounded overflow-hidden mb-2">
-                          <div className="bg-primary h-full rounded transition-all duration-500" style={{ width: `${course.progress}%` }}></div>
-                        </div>
-                        <p className="text-xs text-textLight font-medium">
-                          {course.completedLectures} / {course.totalLectures} · {course.progress}%
-                        </p>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Card Footer */}
-                  <div className="p-5 pt-0">
-                    {course.category === 'available' ? (
-                      <button className="w-full bg-success text-white py-3 rounded-lg font-semibold text-sm hover:bg-green-700 transition">
-                        Enroll Now
-                      </button>
-                    ) : (
-                      <Link
-                        to="/student/lecture-view"
-                        className="block w-full bg-primary text-white py-3 rounded-lg font-semibold text-sm hover:bg-primary-dark transition text-center"
-                      >
-                        {course.category === 'completed' ? 'Review' : 'Continue Learning'}
-                      </Link>
-                    )}
-                  </div>
+                  <button
+                    onClick={() => handleEnroll(course._id)}
+                    className="w-full bg-primary text-white py-2.5 rounded-lg font-semibold hover:bg-primary-dark transition"
+                  >
+                    ✅ Enroll Now
+                  </button>
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-16 bg-white rounded-xl">
-            <div className="text-6xl mb-4">📭</div>
-            <h3 className="text-textDark font-semibold mb-2">No courses found</h3>
-            <p className="text-textLight">Try adjusting your search or filters</p>
+              </div>
+            ))}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }
 
-export default StudentCourses;
+export default Courses;

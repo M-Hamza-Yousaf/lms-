@@ -1,125 +1,103 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Sidebar from '../../../components/Sidebar/Sidebar.jsx';
+import axios from 'axios';
 
 function AdminDashboard() {
-  const stats = [
-    { icon: '👥', label: 'Total Users', value: '1,245', color: 'from-primary to-primary-dark' },
-    { icon: '📚', label: 'Total Courses', value: '87', color: 'from-success to-green-700' },
-    { icon: '🎓', label: 'Active Students', value: '980', color: 'from-secondary to-orange-600' },
-    { icon: '👨‍🏫', label: 'Teachers', value: '52', color: 'from-purple-500 to-purple-700' },
-  ];
+  const [users, setUsers] = useState([]);
+  const [courses, setCourses] = useState([]);
 
-  const recentActivity = [
-    { id: 1, action: 'Ahmad signed up as Student', time: '5 minutes ago', icon: '👤', color: 'bg-blue-100' },
-    { id: 2, action: 'Sara enrolled in Web Development', time: '15 minutes ago', icon: '📚', color: 'bg-green-100' },
-    { id: 3, action: 'New course "AI Basics" added', time: '1 hour ago', icon: '➕', color: 'bg-purple-100' },
-    { id: 4, action: 'Bilal submitted assignment', time: '2 hours ago', icon: '📝', color: 'bg-orange-100' },
-    { id: 5, action: 'Course "Database" updated', time: '3 hours ago', icon: '✏️', color: 'bg-pink-100' },
-  ];
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const topCourses = [
-    { id: 1, title: 'Web Development', students: 245, instructor: 'Sir Ahmed' },
-    { id: 2, title: 'JavaScript Basics', students: 198, instructor: 'Sara Ali' },
-    { id: 3, title: 'Database Systems', students: 156, instructor: 'Sir Bilal' },
-    { id: 4, title: 'Python Programming', students: 142, instructor: 'Sir Tariq' },
-  ];
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const [usersRes, coursesRes] = await Promise.all([
+        axios.get('https://lms-production-b53d.up.railway.app/api/courses/admin/users', {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get('https://lms-production-b53d.up.railway.app/api/courses')
+      ]);
+      setUsers(usersRes.data.users);
+      setCourses(coursesRes.data.courses);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const studentsCount = users.filter(u => u.role === 'student').length;
+  const teachersCount = users.filter(u => u.role === 'teacher').length;
 
   return (
-    <div className="flex min-h-screen bg-bg">
-      <Sidebar role="admin" />
+    <div className="min-h-screen bg-bg p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-gradient-to-r from-purple-600 to-purple-800 text-white p-8 rounded-2xl shadow-lg mb-6">
+          <h1 className="text-3xl font-bold mb-2">Admin Dashboard ⚙️</h1>
+          <p className="opacity-90">System overview and management</p>
+        </div>
 
-      <main className="flex-1 md:ml-64 p-5 md:p-8 pt-20 md:pt-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-7">
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-textDark mb-1">Admin Dashboard ⚙️</h1>
-            <p className="text-sm md:text-base text-textLight">Manage your LMS platform</p>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white p-5 rounded-2xl shadow-lg">
+            <div className="text-3xl mb-1">👥</div>
+            <h3 className="text-2xl font-bold text-textDark">{users.length}</h3>
+            <p className="text-textLight text-xs">Total Users</p>
           </div>
-          <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-500 text-white rounded-full flex items-center justify-center text-lg md:text-2xl flex-shrink-0">
-            ⚙️
+          <div className="bg-white p-5 rounded-2xl shadow-lg">
+            <div className="text-3xl mb-1">🎓</div>
+            <h3 className="text-2xl font-bold text-textDark">{studentsCount}</h3>
+            <p className="text-textLight text-xs">Students</p>
+          </div>
+          <div className="bg-white p-5 rounded-2xl shadow-lg">
+            <div className="text-3xl mb-1">👨‍🏫</div>
+            <h3 className="text-2xl font-bold text-textDark">{teachersCount}</h3>
+            <p className="text-textLight text-xs">Teachers</p>
+          </div>
+          <div className="bg-white p-5 rounded-2xl shadow-lg">
+            <div className="text-3xl mb-1">📚</div>
+            <h3 className="text-2xl font-bold text-textDark">{courses.length}</h3>
+            <p className="text-textLight text-xs">Total Courses</p>
           </div>
         </div>
 
-        {/* Stats - Gradient Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5 mb-8">
-          {stats.map((stat, i) => (
-            <div key={i} className={`bg-gradient-to-br ${stat.color} p-5 md:p-6 rounded-xl text-white hover:-translate-y-1 transition`}>
-              <div className="text-3xl mb-2">{stat.icon}</div>
-              <h3 className="text-2xl md:text-3xl font-bold">{stat.value}</h3>
-              <p className="text-sm opacity-90">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Link to="/admin/manage-users" className="bg-white p-5 rounded-xl shadow-sm hover:shadow-lg transition flex items-center gap-4">
-            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center text-3xl">
-              👥
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-textDark mb-1">Manage Users</h3>
-              <p className="text-sm text-textLight">View and manage all users</p>
-            </div>
-            <span className="text-primary">→</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <Link to="/admin/manage-users" className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+            <div className="text-4xl mb-2">👥</div>
+            <h3 className="font-bold text-xl mb-1 text-textDark">Manage Users</h3>
+            <p className="text-textLight text-sm">View and manage all users</p>
           </Link>
-          <Link to="/admin/manage-courses" className="bg-white p-5 rounded-xl shadow-sm hover:shadow-lg transition flex items-center gap-4">
-            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center text-3xl">
-              📚
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-textDark mb-1">Manage Courses</h3>
-              <p className="text-sm text-textLight">Review and manage courses</p>
-            </div>
-            <span className="text-primary">→</span>
+          <Link to="/admin/manage-courses" className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+            <div className="text-4xl mb-2">📚</div>
+            <h3 className="font-bold text-xl mb-1 text-textDark">Manage Courses</h3>
+            <p className="text-textLight text-sm">Review and moderate courses</p>
           </Link>
         </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Activity */}
-          <div className="bg-white p-5 md:p-6 rounded-xl shadow-sm">
-            <h2 className="text-lg md:text-xl font-bold text-textDark mb-5">Recent Activity</h2>
-            <div className="space-y-3">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex gap-3 items-center p-3 bg-bg rounded-lg hover:bg-gray-100 transition">
-                  <div className={`w-10 h-10 ${activity.color} rounded-lg flex items-center justify-center text-xl flex-shrink-0`}>
-                    {activity.icon}
+        <div className="bg-white p-6 rounded-2xl shadow-lg">
+          <h2 className="text-xl font-bold text-textDark mb-4">Recent Users</h2>
+          {users.length === 0 ? (
+            <p className="text-textLight text-center py-8">No users yet</p>
+          ) : (
+            <div className="space-y-2">
+              {users.slice(0, 5).map(user => (
+                <div key={user._id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                  <div>
+                    <h4 className="font-semibold text-textDark text-sm">{user.fullName}</h4>
+                    <p className="text-xs text-textLight">{user.email}</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-textDark">{activity.action}</p>
-                    <span className="text-xs text-textLight">⏱️ {activity.time}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Top Courses */}
-          <div className="bg-white p-5 md:p-6 rounded-xl shadow-sm">
-            <h2 className="text-lg md:text-xl font-bold text-textDark mb-5">Top Courses</h2>
-            <div className="space-y-3">
-              {topCourses.map((course, i) => (
-                <div key={course.id} className="flex items-center gap-3 p-3 bg-bg rounded-lg hover:bg-gray-100 transition">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-white flex-shrink-0 ${
-                    i === 0 ? 'bg-yellow-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-orange-700' : 'bg-primary'
+                  <span className={`text-xs font-semibold px-2 py-1 rounded ${
+                    user.role === 'admin' ? 'bg-purple-100 text-purple-700' :
+                    user.role === 'teacher' ? 'bg-green-100 text-success' :
+                    'bg-blue-100 text-primary'
                   }`}>
-                    #{i + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-textDark text-sm">{course.title}</h4>
-                    <p className="text-xs text-textLight">{course.instructor}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-textDark">{course.students}</p>
-                    <p className="text-xs text-textLight">students</p>
-                  </div>
+                    {user.role}
+                  </span>
                 </div>
               ))}
             </div>
-          </div>
+          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -1,168 +1,170 @@
 import { useState } from 'react';
-import Sidebar from '../../../components/Sidebar/Sidebar.jsx';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-function TeacherAddLecture() {
+function AddLecture() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    course: '',
     title: '',
     description: '',
-    videoUrl: '',
-    duration: '',
-    resources: ''
+    category: 'Programming',
+    duration: '4 weeks',
+    price: 0,
+    level: 'Beginner',
+    thumbnail: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Lecture added successfully! (Backend integration pending)');
-    setFormData({ course: '', title: '', description: '', videoUrl: '', duration: '', resources: '' });
+    setLoading(true);
+    setError('');
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        'https://lms-production-b53d.up.railway.app/api/courses',
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Course created successfully! 🎉');
+      navigate('/teacher/my-courses');
+    } catch (error) {
+      setError(error.response?.data?.message || 'Failed to create course');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex min-h-screen bg-bg">
-      <Sidebar role="teacher" />
-
-      <main className="flex-1 md:ml-64 p-5 md:p-8 pt-20 md:pt-8">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-xl md:text-3xl font-bold text-textDark mb-1">Add New Lecture ➕</h1>
-          <p className="text-sm md:text-base text-textLight">Upload a new lecture for your students</p>
+    <div className="min-h-screen bg-bg p-6">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-textDark">Create New Course 📚</h1>
+          <p className="text-textLight mt-1">Fill in the details to create your course</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-5 md:p-8 max-w-3xl">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Course Select */}
-            <div>
-              <label className="block text-sm font-medium text-textDark mb-2">
-                Select Course <span className="text-danger">*</span>
-              </label>
-              <select
-                name="course"
-                value={formData.course}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 bg-white"
-              >
-                <option value="">-- Choose a course --</option>
-                <option value="web-dev">Web Development with React</option>
-                <option value="database">Database Management Systems</option>
-                <option value="js">JavaScript Fundamentals</option>
-                <option value="node">Node.js Backend Development</option>
-              </select>
+        <div className="bg-white p-8 rounded-2xl shadow-lg">
+          {error && (
+            <div className="bg-red-50 border border-danger text-danger px-4 py-3 rounded-lg mb-4 text-sm">
+              ⚠️ {error}
             </div>
+          )}
 
-            {/* Lecture Title */}
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-textDark mb-2">
-                Lecture Title <span className="text-danger">*</span>
-              </label>
+              <label className="block text-sm font-medium text-textDark mb-1.5">Course Title</label>
               <input
                 type="text"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
+                placeholder="e.g., React for Beginners"
                 required
-                placeholder="e.g., Introduction to React Hooks"
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary"
               />
             </div>
 
-            {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-textDark mb-2">
-                Description <span className="text-danger">*</span>
-              </label>
+              <label className="block text-sm font-medium text-textDark mb-1.5">Description</label>
               <textarea
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
+                placeholder="What will students learn..."
                 required
                 rows="4"
-                placeholder="What will students learn in this lecture?"
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 resize-y"
-              ></textarea>
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary resize-none"
+              />
             </div>
 
-            {/* Video URL & Duration */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-textDark mb-2">
-                  Video URL
-                </label>
-                <input
-                  type="url"
-                  name="videoUrl"
-                  value={formData.videoUrl}
+                <label className="block text-sm font-medium text-textDark mb-1.5">Category</label>
+                <select
+                  name="category"
+                  value={formData.category}
                   onChange={handleChange}
-                  placeholder="https://youtube.com/..."
                   className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary"
-                />
+                >
+                  <option value="Programming">Programming</option>
+                  <option value="Design">Design</option>
+                  <option value="Business">Business</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
+
               <div>
-                <label className="block text-sm font-medium text-textDark mb-2">
-                  Duration (mm:ss)
-                </label>
+                <label className="block text-sm font-medium text-textDark mb-1.5">Level</label>
+                <select
+                  name="level"
+                  value={formData.level}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary"
+                >
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-textDark mb-1.5">Duration</label>
                 <input
                   type="text"
                   name="duration"
                   value={formData.duration}
                   onChange={handleChange}
-                  placeholder="25:30"
+                  placeholder="e.g., 4 weeks"
+                  className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-textDark mb-1.5">Price ($)</label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  min="0"
                   className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
-            {/* File Upload */}
             <div>
-              <label className="block text-sm font-medium text-textDark mb-2">
-                Upload Video File
-              </label>
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition cursor-pointer">
-                <div className="text-5xl mb-3">📹</div>
-                <p className="text-textDark font-medium mb-1">Click to upload or drag and drop</p>
-                <p className="text-xs text-textLight">MP4, AVI, MOV (Max 500MB)</p>
-              </div>
-            </div>
-
-            {/* Resources */}
-            <div>
-              <label className="block text-sm font-medium text-textDark mb-2">
-                Additional Resources (Optional)
-              </label>
-              <textarea
-                name="resources"
-                value={formData.resources}
+              <label className="block text-sm font-medium text-textDark mb-1.5">Thumbnail URL (Optional)</label>
+              <input
+                type="url"
+                name="thumbnail"
+                value={formData.thumbnail}
                 onChange={handleChange}
-                rows="3"
-                placeholder="Add links to PDFs, slides, or code examples (one per line)"
-                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary resize-y"
-              ></textarea>
+                placeholder="https://example.com/image.jpg"
+                className="w-full px-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary"
+              />
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-col md:flex-row gap-3 pt-4 border-t border-border">
-              <button
-                type="submit"
-                className="flex-1 bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition"
-              >
-                💾 Save Lecture
-              </button>
-              <button
-                type="button"
-                className="flex-1 bg-bg text-textDark py-3 rounded-lg font-medium hover:bg-gray-200 transition"
-              >
-                Save as Draft
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark transition disabled:opacity-60"
+            >
+              {loading ? '⏳ Creating Course...' : '➕ Create Course'}
+            </button>
           </form>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
 
-export default TeacherAddLecture;
+export default AddLecture;

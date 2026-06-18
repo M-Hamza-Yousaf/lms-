@@ -1,98 +1,102 @@
-import { useState } from 'react';
-import Sidebar from '../../../components/Sidebar/Sidebar.jsx';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function AdminManageCourses() {
-  const [searchQuery, setSearchQuery] = useState('');
+function ManageCourses() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const courses = [
-    { id: 1, title: 'Web Development with React', instructor: 'Sir Ahmed', students: 245, status: 'active', created: '2025-08-15', icon: '🌐' },
-    { id: 2, title: 'JavaScript Fundamentals', instructor: 'Sara Ali', students: 198, status: 'active', created: '2025-07-20', icon: '💻' },
-    { id: 3, title: 'Database Systems', instructor: 'Sir Bilal', students: 156, status: 'active', created: '2025-09-10', icon: '💾' },
-    { id: 4, title: 'Python Programming', instructor: 'Sir Tariq', students: 142, status: 'active', created: '2025-06-05', icon: '🐍' },
-    { id: 5, title: 'AI Basics', instructor: 'Sir Usman', students: 89, status: 'pending', created: '2026-04-20', icon: '🤖' },
-    { id: 6, title: 'Mobile Development', instructor: 'Hassan Ali', students: 67, status: 'active', created: '2026-01-15', icon: '📱' },
-    { id: 7, title: 'Cloud Computing', instructor: 'Fatima Sheikh', students: 0, status: 'pending', created: '2026-05-10', icon: '☁️' },
-  ];
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
-  const filteredCourses = courses.filter(c =>
-    c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.instructor.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const fetchCourses = async () => {
+    try {
+      const response = await axios.get('https://lms-production-b53d.up.railway.app/api/courses');
+      setCourses(response.data.courses);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this course permanently?')) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`https://lms-production-b53d.up.railway.app/api/courses/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCourses(courses.filter(c => c._id !== id));
+      alert('Course deleted');
+    } catch (error) {
+      alert('Failed to delete');
+    }
+  };
 
   return (
-    <div className="flex min-h-screen bg-bg">
-      <Sidebar role="admin" />
-
-      <main className="flex-1 md:ml-64 p-5 md:p-8 pt-20 md:pt-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-xl md:text-3xl font-bold text-textDark mb-1">Manage Courses 📚</h1>
-            <p className="text-sm md:text-base text-textLight">Review and manage all platform courses</p>
-          </div>
-          <button className="bg-primary text-white px-5 py-3 rounded-lg font-semibold hover:bg-primary-dark transition">
-            ➕ Add New Course
-          </button>
+    <div className="min-h-screen bg-bg p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-textDark">Manage Courses ⚙️</h1>
+          <p className="text-textLight mt-1">Total: {courses.length} courses</p>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🔍</span>
-          <input
-            type="text"
-            placeholder="Search courses or instructors..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white border border-border rounded-xl focus:outline-none focus:border-primary"
-          />
-        </div>
-
-        {/* Courses Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredCourses.map((course) => (
-            <div key={course.id} className="bg-white rounded-xl shadow-sm hover:shadow-lg transition overflow-hidden">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 flex justify-between items-start">
-                <span className="text-5xl">{course.icon}</span>
-                <span className={`text-xs font-semibold px-3 py-1 rounded-full uppercase ${
-                  course.status === 'active' ? 'bg-success text-white' : 'bg-secondary text-white'
-                }`}>
-                  {course.status}
-                </span>
-              </div>
-
-              <div className="p-5">
-                <h3 className="font-bold text-textDark mb-2">{course.title}</h3>
-                <p className="text-sm text-textLight mb-4">👤 {course.instructor}</p>
-
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-bg p-3 rounded-lg text-center">
-                    <p className="text-textLight text-xs mb-1">Students</p>
-                    <p className="font-bold text-textDark">{course.students}</p>
-                  </div>
-                  <div className="bg-bg p-3 rounded-lg text-center">
-                    <p className="text-textLight text-xs mb-1">Created</p>
-                    <p className="font-bold text-textDark text-xs">{course.created}</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button className="flex-1 bg-primary text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition">
-                    ✏️ Edit
-                  </button>
-                  <button className="flex-1 bg-bg text-textDark py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition">
-                    👁️ View
-                  </button>
-                  <button className="bg-danger text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition">
-                    🗑️
-                  </button>
-                </div>
-              </div>
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          {loading ? (
+            <div className="p-12 text-center text-textLight">Loading...</div>
+          ) : courses.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="text-6xl mb-4">📚</div>
+              <h2 className="text-xl font-bold text-textDark">No Courses Yet</h2>
             </div>
-          ))}
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-bg">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Course</th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Teacher</th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Category</th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Students</th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {courses.map(course => (
+                    <tr key={course._id} className="border-t border-border hover:bg-bg">
+                      <td className="px-4 py-3">
+                        <div className="font-semibold text-textDark">{course.title}</div>
+                        <div className="text-xs text-textLight line-clamp-1">{course.description}</div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-textDark">{course.teacherName}</td>
+                      <td className="px-4 py-3">
+                        <span className="bg-blue-100 text-primary text-xs font-semibold px-2 py-1 rounded">
+                          {course.category}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-textDark">
+                        {course.enrolledStudents?.length || 0}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleDelete(course._id)}
+                          className="bg-danger text-white text-xs px-3 py-1.5 rounded font-semibold hover:bg-red-700 transition"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
 
-export default AdminManageCourses;
+export default ManageCourses;
