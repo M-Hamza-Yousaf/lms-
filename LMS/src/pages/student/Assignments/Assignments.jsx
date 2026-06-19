@@ -45,7 +45,7 @@ function Assignments() {
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-textDark">
-            My Assignments 📝
+            My Assignments 📚📚
           </h1>
           <p className="text-textLight mt-1">
             Track and submit your assignments
