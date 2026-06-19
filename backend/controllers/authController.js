@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const User = require("../models/User");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // SIGNUP CONTROLLER
 const signup = async (req, res) => {
@@ -10,7 +10,7 @@ const signup = async (req, res) => {
     if (!fullName || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide all required fields'
+        message: "Please provide all required fields",
       });
     }
 
@@ -18,7 +18,7 @@ const signup = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'User already exists with this email'
+        message: "User already exists with this email",
       });
     }
 
@@ -29,32 +29,31 @@ const signup = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      role: role || 'student'
+      role: role || "student",
     });
 
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: "7d" },
     );
 
     res.status(201).json({
       success: true,
-      message: 'User created successfully',
+      message: "User created successfully",
       token,
       user: {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: "Server error",
+      error: error.message,
     });
   }
 };
@@ -67,7 +66,7 @@ const login = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: "Please provide email and password",
       });
     }
 
@@ -75,7 +74,7 @@ const login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
@@ -83,33 +82,32 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: "7d" },
     );
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       token,
       user: {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
-
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server error',
-      error: error.message
+      message: "Server error",
+      error: error.message,
     });
   }
 };
