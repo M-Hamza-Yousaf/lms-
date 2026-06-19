@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 function ManageCourses() {
   const [courses, setCourses] = useState([]);
@@ -11,27 +11,32 @@ function ManageCourses() {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('https://lms-production-b53d.up.railway.app/api/courses');
+      const response = await axios.get(
+        "https://lms-production-b53d.up.railway.app/api/courses",
+      );
       setCourses(response.data.courses);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this course permanently?')) return;
-    
+    if (!window.confirm("Delete this course permanently?")) return;
+
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`https://lms-production-b53d.up.railway.app/api/courses/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCourses(courses.filter(c => c._id !== id));
-      alert('Course deleted');
+      const token = localStorage.getItem("token");
+      await axios.delete(
+        `https://lms-production-b53d.up.railway.app/api/courses/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      setCourses(courses.filter((c) => c._id !== id));
+      alert("Course deleted");
     } catch (error) {
-      alert('Failed to delete');
+      alert("Failed to delete");
     }
   };
 
@@ -39,7 +44,9 @@ function ManageCourses() {
     <div className="min-h-screen bg-bg p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-textDark">Manage Courses ⚙️</h1>
+          <h1 className="text-3xl font-bold text-textDark">
+            Manage Courses ⚙️
+          </h1>
           <p className="text-textLight mt-1">Total: {courses.length} courses</p>
         </div>
 
@@ -49,28 +56,49 @@ function ManageCourses() {
           ) : courses.length === 0 ? (
             <div className="p-12 text-center">
               <div className="text-6xl mb-4">📚</div>
-              <h2 className="text-xl font-bold text-textDark">No Courses Yet</h2>
+              <h2 className="text-xl font-bold text-textDark">
+                No Courses Yet
+              </h2>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-bg">
                   <tr>
-                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Course</th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Teacher</th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Category</th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Students</th>
-                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">Action</th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">
+                      Course
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">
+                      Teacher
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">
+                      Category
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">
+                      Students
+                    </th>
+                    <th className="text-left px-4 py-3 text-sm font-semibold text-textDark">
+                      Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {courses.map(course => (
-                    <tr key={course._id} className="border-t border-border hover:bg-bg">
+                  {courses.map((course) => (
+                    <tr
+                      key={course._id}
+                      className="border-t border-border hover:bg-bg"
+                    >
                       <td className="px-4 py-3">
-                        <div className="font-semibold text-textDark">{course.title}</div>
-                        <div className="text-xs text-textLight line-clamp-1">{course.description}</div>
+                        <div className="font-semibold text-textDark">
+                          {course.title}
+                        </div>
+                        <div className="text-xs text-textLight line-clamp-1">
+                          {course.description}
+                        </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-textDark">{course.teacherName}</td>
+                      <td className="px-4 py-3 text-sm text-textDark">
+                        {course.teacherName}
+                      </td>
                       <td className="px-4 py-3">
                         <span className="bg-blue-100 text-primary text-xs font-semibold px-2 py-1 rounded">
                           {course.category}
