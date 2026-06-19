@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -12,12 +12,15 @@ function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const [usersRes, coursesRes] = await Promise.all([
-        axios.get('https://lms-production-b53d.up.railway.app/api/courses/admin/users', {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get('https://lms-production-b53d.up.railway.app/api/courses')
+        axios.get(
+          "https://lms-production-b53d.up.railway.app/api/courses/admin/users",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        ),
+        axios.get("https://lms-production-b53d.up.railway.app/api/courses"),
       ]);
       setUsers(usersRes.data.users);
       setCourses(coursesRes.data.courses);
@@ -26,8 +29,8 @@ function AdminDashboard() {
     }
   };
 
-  const studentsCount = users.filter(u => u.role === 'student').length;
-  const teachersCount = users.filter(u => u.role === 'teacher').length;
+  const studentsCount = users.filter((u) => u.role === "student").length;
+  const teachersCount = users.filter((u) => u.role === "teacher").length;
 
   return (
     <div className="min-h-screen bg-bg p-6">
@@ -45,31 +48,49 @@ function AdminDashboard() {
           </div>
           <div className="bg-white p-5 rounded-2xl shadow-lg">
             <div className="text-3xl mb-1">🎓</div>
-            <h3 className="text-2xl font-bold text-textDark">{studentsCount}</h3>
+            <h3 className="text-2xl font-bold text-textDark">
+              {studentsCount}
+            </h3>
             <p className="text-textLight text-xs">Students</p>
           </div>
           <div className="bg-white p-5 rounded-2xl shadow-lg">
             <div className="text-3xl mb-1">👨‍🏫</div>
-            <h3 className="text-2xl font-bold text-textDark">{teachersCount}</h3>
+            <h3 className="text-2xl font-bold text-textDark">
+              {teachersCount}
+            </h3>
             <p className="text-textLight text-xs">Teachers</p>
           </div>
           <div className="bg-white p-5 rounded-2xl shadow-lg">
             <div className="text-3xl mb-1">📚</div>
-            <h3 className="text-2xl font-bold text-textDark">{courses.length}</h3>
+            <h3 className="text-2xl font-bold text-textDark">
+              {courses.length}
+            </h3>
             <p className="text-textLight text-xs">Total Courses</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <Link to="/admin/manage-users" className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+          <Link
+            to="/admin/manage-users"
+            className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition"
+          >
             <div className="text-4xl mb-2">👥</div>
-            <h3 className="font-bold text-xl mb-1 text-textDark">Manage Users</h3>
+            <h3 className="font-bold text-xl mb-1 text-textDark">
+              Manage Users
+            </h3>
             <p className="text-textLight text-sm">View and manage all users</p>
           </Link>
-          <Link to="/admin/manage-courses" className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition">
+          <Link
+            to="/admin/manage-courses"
+            className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition"
+          >
             <div className="text-4xl mb-2">📚</div>
-            <h3 className="font-bold text-xl mb-1 text-textDark">Manage Courses</h3>
-            <p className="text-textLight text-sm">Review and moderate courses</p>
+            <h3 className="font-bold text-xl mb-1 text-textDark">
+              Manage Courses
+            </h3>
+            <p className="text-textLight text-sm">
+              Review and moderate courses
+            </p>
           </Link>
         </div>
 
@@ -79,17 +100,26 @@ function AdminDashboard() {
             <p className="text-textLight text-center py-8">No users yet</p>
           ) : (
             <div className="space-y-2">
-              {users.slice(0, 5).map(user => (
-                <div key={user._id} className="flex items-center justify-between p-3 border border-border rounded-lg">
+              {users.slice(0, 5).map((user) => (
+                <div
+                  key={user._id}
+                  className="flex items-center justify-between p-3 border border-border rounded-lg"
+                >
                   <div>
-                    <h4 className="font-semibold text-textDark text-sm">{user.fullName}</h4>
+                    <h4 className="font-semibold text-textDark text-sm">
+                      {user.fullName}
+                    </h4>
                     <p className="text-xs text-textLight">{user.email}</p>
                   </div>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                    user.role === 'admin' ? 'bg-purple-100 text-purple-700' :
-                    user.role === 'teacher' ? 'bg-green-100 text-success' :
-                    'bg-blue-100 text-primary'
-                  }`}>
+                  <span
+                    className={`text-xs font-semibold px-2 py-1 rounded ${
+                      user.role === "admin"
+                        ? "bg-purple-100 text-purple-700"
+                        : user.role === "teacher"
+                          ? "bg-green-100 text-success"
+                          : "bg-blue-100 text-primary"
+                    }`}
+                  >
                     {user.role}
                   </span>
                 </div>
