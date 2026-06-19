@@ -1,20 +1,20 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function AddLecture() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    category: 'Programming',
-    duration: '4 weeks',
+    title: "",
+    description: "",
+    category: "Programming",
+    duration: "4 weeks",
     price: 0,
-    level: 'Beginner',
-    thumbnail: ''
+    level: "Beginner",
+    thumbnail: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,19 +23,19 @@ function AddLecture() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       await axios.post(
-        'https://lms-production-b53d.up.railway.app/api/courses',
+        "https://lms-production-b53d.up.railway.app/api/courses",
         formData,
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-      alert('Course created successfully! 🎉');
-      navigate('/teacher/my-courses');
+      alert("Course created successfully! 🎉");
+      navigate("/teacher/my-courses");
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to create course');
+      setError(error.response?.data?.message || "Failed to create course");
     } finally {
       setLoading(false);
     }
@@ -45,8 +45,12 @@ function AddLecture() {
     <div className="min-h-screen bg-bg p-6">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-textDark">Create New Course 📚</h1>
-          <p className="text-textLight mt-1">Fill in the details to create your course</p>
+          <h1 className="text-3xl font-bold text-textDark">
+            Create New Course 📚
+          </h1>
+          <p className="text-textLight mt-1">
+            Fill in the details to create your course
+          </p>
         </div>
 
         <div className="bg-white p-8 rounded-2xl shadow-lg">
@@ -58,7 +62,9 @@ function AddLecture() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-textDark mb-1.5">Course Title</label>
+              <label className="block text-sm font-medium text-textDark mb-1.5">
+                Course Title
+              </label>
               <input
                 type="text"
                 name="title"
@@ -71,7 +77,9 @@ function AddLecture() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-textDark mb-1.5">Description</label>
+              <label className="block text-sm font-medium text-textDark mb-1.5">
+                Description
+              </label>
               <textarea
                 name="description"
                 value={formData.description}
@@ -85,7 +93,9 @@ function AddLecture() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-textDark mb-1.5">Category</label>
+                <label className="block text-sm font-medium text-textDark mb-1.5">
+                  Category
+                </label>
                 <select
                   name="category"
                   value={formData.category}
@@ -101,7 +111,9 @@ function AddLecture() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-textDark mb-1.5">Level</label>
+                <label className="block text-sm font-medium text-textDark mb-1.5">
+                  Level
+                </label>
                 <select
                   name="level"
                   value={formData.level}
@@ -117,7 +129,9 @@ function AddLecture() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-textDark mb-1.5">Duration</label>
+                <label className="block text-sm font-medium text-textDark mb-1.5">
+                  Duration
+                </label>
                 <input
                   type="text"
                   name="duration"
@@ -129,7 +143,9 @@ function AddLecture() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-textDark mb-1.5">Price ($)</label>
+                <label className="block text-sm font-medium text-textDark mb-1.5">
+                  Price ($)
+                </label>
                 <input
                   type="number"
                   name="price"
@@ -142,7 +158,9 @@ function AddLecture() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-textDark mb-1.5">Thumbnail URL (Optional)</label>
+              <label className="block text-sm font-medium text-textDark mb-1.5">
+                Thumbnail URL (Optional)
+              </label>
               <input
                 type="url"
                 name="thumbnail"
@@ -158,7 +176,7 @@ function AddLecture() {
               disabled={loading}
               className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary-dark transition disabled:opacity-60"
             >
-              {loading ? '⏳ Creating Course...' : '➕ Create Course'}
+              {loading ? "⏳ Creating Course..." : "➕ Create Course"}
             </button>
           </form>
         </div>
