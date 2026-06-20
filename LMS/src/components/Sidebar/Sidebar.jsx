@@ -10,6 +10,7 @@ function Sidebar({ role = "student" }) {
     student: [
       { path: "/student/dashboard", icon: "🏠", label: "Dashboard" },
       { path: "/student/courses", icon: "📚", label: "My Courses" },
+      { path: "/student/lecture-view", icon: "🎥", label: "Lectures" },
       { path: "/student/assignments", icon: "📝", label: "Assignments" },
       { path: "/student/grades", icon: "📊", label: "Grades" },
     ],
